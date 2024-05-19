@@ -1,79 +1,63 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import firebase from './firebaseConfig';
+import React, { useRef, useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Dimensions, ImageBackground, Image, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
+import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 
-const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 
-    const handleLogin = () => {
-        // Perform login authentication logic here
-        // You can use the email and password state values
+const HomeScreen = ({ navigation }) => {
+
+    const webClientId = "466670318514-b8613pmuqspooafkltonuvj4r139tp1k.apps.googleusercontent.com";
+
+    useEffect(() => {
+        GoogleSignin.configure({
+            webClientId: webClientId,
+        })
+    }, [])
+
+    const googleLogin = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            console.log("userinfo", userInfo);
+
+        } catch (error) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                console.log(error)
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                console.log(error)
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                console.log(error)
+            } else {
+            }
+        }
     };
-
     return (
-        <View style={styles.container}>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                onChangeText={text => setEmail(text)}
-                value={email}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                onChangeText={text => setPassword(text)}
-                value={password}
-                secureTextEntry
-            />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Sign In</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
-            </TouchableOpacity>
+        <View style={{ margin: 20 }}>
+            <Pressable onPress={googleLogin}>
+                <View style={styles.loginButton}>
+                    <View style={{ marginLeft: 5 }}>
+                        <Text style={{ color: '#222222', fontWeight: '400', fontSize: 18 }}>
+                            Login with Google
+                        </Text>
+                    </View>
+                </View>
+            </Pressable>
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        justifyContent: 'center',
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-    button: {
-        backgroundColor: 'blue',
-        paddingVertical: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-    forgotPasswordText: {
-        marginTop: 10,
-        color: 'blue',
-        textAlign: 'center',
-    },
-    signupText: {
-        marginTop: 20,
-        color: 'blue',
-        textAlign: 'center',
-    },
+    loginButton: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#FFFFFF",
+        width: screenWidth - 50,
+        height: 48,
+        borderRadius: 10
+    }
 });
 
-export default LoginPage;
+export default HomeScreen;
